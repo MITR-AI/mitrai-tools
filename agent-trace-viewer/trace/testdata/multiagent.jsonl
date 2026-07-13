@@ -1,0 +1,5 @@
+{"span_id":"plan-1","name":"plan research","kind":"plan","status":"ok","started_at":"2026-07-13T11:00:00Z","ended_at":"2026-07-13T11:00:06Z","tokens":{"in":120,"out":44},"cost_usd":0.002}
+{"span_id":"tool-1","parent_span_id":"plan-1","name":"search documentation","kind":"tool","status":"ok","started_at":"2026-07-13T11:00:01Z","ended_at":"2026-07-13T11:00:04Z","attributes":{"query":"retry policy"}}
+{"span_id":"llm-1","parent_span_id":"tool-1","name":"synthesize first pass","kind":"llm","status":"error","started_at":"2026-07-13T11:00:02Z","ended_at":"2026-07-13T11:00:03Z","tokens":{"in":300,"out":0},"cost_usd":0.004,"error":"upstream model timeout"}
+{"span_id":"llm-1-retry","parent_span_id":"tool-1","name":"synthesize retry","kind":"llm","status":"ok","started_at":"2026-07-13T11:00:03Z","ended_at":"2026-07-13T11:00:04Z","tokens":{"in":300,"out":180},"cost_usd":0.005}
+{"span_id":"verify-1","parent_span_id":"plan-1","name":"verify answer","kind":"verify","status":"ok","started_at":"2026-07-13T11:00:04Z","ended_at":"2026-07-13T11:00:06Z"}
