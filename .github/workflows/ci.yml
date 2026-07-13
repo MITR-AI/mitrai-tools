@@ -15,6 +15,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
+          cache: false  # tools are stdlib-only (no go.sum) — skip dep cache to avoid a noisy warning
       - name: Build, vet, test each tool
         run: |
           set -euo pipefail
@@ -24,7 +25,7 @@ jobs:
             dir=$(dirname "$mod")
             echo "::group::$dir"
             ( cd "$dir" && gofmt -l . | (grep . && { echo 'gofmt needed'; exit 1; } || true) \
-              && go build ./... && go vet ./... && go test ./... )
+              && go build ./... && go vet ./... && go test -race ./... )
             echo "::endgroup::"
             found=1
           done
