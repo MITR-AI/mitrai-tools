@@ -93,6 +93,11 @@ jobs:
           go-version: '1.23'
           cache: false
       - name: install + scan (each module, advisory)
+        # setup-go v6 defaults GOTOOLCHAIN=local; govulncheck@latest needs a newer Go than our
+        # pin to build, so let this advisory step fetch the toolchain it requires (scan targets
+        # are still analyzed against each module's go.mod version).
+        env:
+          GOTOOLCHAIN: auto
         run: |
           set -uo pipefail
           go install golang.org/x/vuln/cmd/govulncheck@latest
