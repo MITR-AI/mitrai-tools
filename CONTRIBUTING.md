@@ -42,11 +42,16 @@ do not accept GitHub's auto-generated bullet list of intermediate commits.
 
 ## Local checks before you push
 
+CI runs these across every tool module (matrix Go 1.22 + 1.23): `gofmt`, `go build`, `go vet`,
+**`go test -race`**, **golangci-lint**, a **coverage floor (≥65% per module — add tests, don't lower it)**,
+and (advisory) govulncheck + CodeQL. Reproduce locally:
+
 ```sh
 cd <tool>/          # e.g. agent-trace-viewer
-go build ./...
-go test ./...
 gofmt -l .          # must print nothing
+go build ./... && go vet ./...
+go test -race -cover ./...   # keep module coverage ≥ 65%; failure-surface tests (neg + edge), not just happy path
+golangci-lint run ./...      # defaults: errcheck / staticcheck / govet / unused / ineffassign / gosimple
 ```
 
 ## Adding a new tool

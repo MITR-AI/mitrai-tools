@@ -6,7 +6,11 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
+  # Primary gate (required): format, build, vet, race tests, and a coverage FLOOR per module.
   build-and-test:
     name: build-and-test
     runs-on: ubuntu-latest
@@ -14,19 +18,85 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
-          cache: false  # tools are stdlib-only (no go.sum) — skip dep cache to avoid a noisy warning
-      - name: Build, vet, test each tool
+          go-version: '1.23'
+          cache: false
+      - name: gofmt + build + vet + race tests + coverage gate (each module)
         run: |
           set -euo pipefail
-          # Each tool is a self-contained module (its own go.mod). Test them all.
+          FLOOR=65
           found=0
           for mod in $(find . -name go.mod -not -path './.git/*'); do
             dir=$(dirname "$mod")
             echo "::group::$dir"
-            ( cd "$dir" && gofmt -l . | (grep . && { echo 'gofmt needed'; exit 1; } || true) \
-              && go build ./... && go vet ./... && go test -race ./... )
+            (
+              cd "$dir"
+              fmtout=$(gofmt -l .); [ -z "$fmtout" ] || { echo "::error::gofmt needed: $fmtout"; exit 1; }
+              go build ./...
+              go vet ./...
+              go test -race -covermode=atomic -coverprofile=cover.out ./...
+              total=$(go tool cover -func=cover.out | awk '/^total:/{gsub(/%/,"",$3);print $3}')
+              echo "coverage: ${total}% (floor ${FLOOR}%)"
+              awk -v t="$total" -v f="$FLOOR" 'BEGIN{ exit (t+0 < f+0) ? 1 : 0 }' \
+                || { echo "::error::$dir coverage ${total}% is below the ${FLOOR}% floor — add tests"; exit 1; }
+              go tool cover -func=cover.out | tail -25
+            )
             echo "::endgroup::"
             found=1
           done
-          [ "$found" = 1 ] || { echo "no go modules found"; exit 1; }
+          [ "$found" = 1 ] || { echo "::error::no go modules found"; exit 1; }
+
+  # Older-Go compatibility (required): the tools must build + pass on the minimum supported Go too.
+  compat:
+    name: compat (go 1.22)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache: false
+      - name: build + test (each module)
+        run: |
+          set -euo pipefail
+          for mod in $(find . -name go.mod -not -path './.git/*'); do
+            ( cd "$(dirname "$mod")" && go build ./... && go test ./... )
+          done
+
+  # Static analysis (required): golangci-lint defaults (errcheck, staticcheck, govet, unused, ineffassign, gosimple).
+  golangci-lint:
+    name: golangci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: false
+      - name: install golangci-lint
+        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b "$(go env GOPATH)/bin"
+      - name: run (each module)
+        run: |
+          set -euo pipefail
+          for mod in $(find . -name go.mod -not -path './.git/*'); do
+            ( cd "$(dirname "$mod")" && "$(go env GOPATH)/bin/golangci-lint" run ./... )
+          done
+
+  # Vulnerability scan (ADVISORY — not a required check): stdlib CVEs track the Go version, so a new CVE
+  # must not block all merges until the Go patch lands. Findings surface as warnings.
+  govulncheck:
+    name: govulncheck (advisory)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: false
+      - name: install + scan (each module, advisory)
+        run: |
+          set -uo pipefail
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          for mod in $(find . -name go.mod -not -path './.git/*'); do
+            ( cd "$(dirname "$mod")" && "$(go env GOPATH)/bin/govulncheck" ./... ) \
+              || echo "::warning::govulncheck reported findings in $mod (advisory — often a stdlib CVE fixed in a newer Go patch)"
+          done
