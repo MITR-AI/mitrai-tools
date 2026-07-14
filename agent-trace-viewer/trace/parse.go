@@ -17,7 +17,7 @@ func ParseFile(path string) (Trace, error) {
 	if err != nil {
 		return Trace{}, fmt.Errorf("open trace file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	if strings.EqualFold(filepath.Ext(path), ".jsonl") {
 		return ParseJSONL(f)
 	}

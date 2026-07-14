@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Keep the CI action versions current.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  # Go modules across every tool (tools are stdlib-only today; this covers any future dependency).
+  - package-ecosystem: "gomod"
+    directories:
+      - "/**"
+    schedule:
+      interval: "weekly"

@@ -69,7 +69,7 @@ func run(args []string, out, errOut io.Writer) error {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprint(w, `Agent Trace Viewer
+	_, _ = fmt.Fprint(w, `Agent Trace Viewer
 
 Usage:
   trace-view show <file>
@@ -120,7 +120,7 @@ func serve(args []string, out, errOut io.Writer) error {
 		}
 	})
 	addr := ":" + strconv.Itoa(*port)
-	fmt.Fprintf(out, "Agent Trace Viewer: http://localhost:%d\n", *port)
+	_, _ = fmt.Fprintf(out, "Agent Trace Viewer: http://localhost:%d\n", *port)
 	return http.ListenAndServe(addr, mux)
 }
 
