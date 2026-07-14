@@ -9,7 +9,12 @@ same for everyone and the public history stays production-grade.
 1. **Fork & branch.** External contributors work on a fork; maintainers use a topic branch. Never commit to
    `main` directly — it is protected.
 2. **One focused PR.** Keep a PR scoped to a single change/tool. Open it against `main`.
-3. **CI must pass.** Every PR runs build + tests for the affected tool(s). Red CI blocks merge.
+3. **Required checks must pass.** Every PR runs build + tests for the affected tool(s). The
+   **required** checks — `build-and-test`, `compat (go 1.22)`, `golangci-lint` — gate the merge (a red
+   required check blocks it). `govulncheck` and `CodeQL` are **advisory**: a red advisory check does
+   **not** block a merge (a stdlib CVE or a toolchain quirk shouldn't stall every dependency update) —
+   but advisory red is **triaged and fixed, not ignored**, since leaving it red decays it into noise that
+   hides real signal.
 4. **Tests required.** Bugfixes ship a failing-test-first; features ship negative + edge coverage, not just
    the happy path. A PR that changes logic without a test change will be asked to add one.
 5. **Maintainer review.** At least one maintainer (see [CODEOWNERS](.github/CODEOWNERS)) must approve. Review
