@@ -14,8 +14,9 @@ editions are commercial.
 | Tool | What it does | Status |
 |---|---|---|
 | [`agent-trace-viewer`](agent-trace-viewer/) | Inspect, summarize, and debug an AI agent run — step-by-step tool/LLM calls, timing, tokens, cost, errors (CLI + local web UI). Reads an open, OpenTelemetry-compatible trace format. | alpha |
+| [`conversation-replay`](conversation-replay/) | Time-travel through a recorded AI agent **conversation** — replay turn-by-turn, inspect full state at any turn, and diff two runs to find where they diverged (CLI + local web UI). Complements the trace viewer (turns vs spans). | alpha |
 
-More tools land here one at a time (memory explorer, conversation replay, architecture-drift detector, …).
+More tools land here one at a time (memory explorer, architecture-drift detector, …).
 
 ## Skills
 

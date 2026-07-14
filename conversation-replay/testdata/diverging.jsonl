@@ -1,0 +1,4 @@
+{"conversation_id":"demo-002","index":0,"role":"user","content":"Find the capital of France.","at":"2026-01-01T09:00:00Z"}
+{"conversation_id":"demo-002","index":1,"role":"assistant","content":"I will search a different source.","tool_calls":[{"name":"web_search","args":{"q":"France capital"},"result":"Paris"}],"tokens":{"in":12,"out":9},"at":"2026-01-01T09:00:01Z"}
+{"conversation_id":"demo-002","index":2,"role":"assistant","content":"The capital of France is Paris.","state":{"stage":"looked-up","answer":"Paris"},"tokens":{"in":20,"out":9},"at":"2026-01-01T09:00:02Z"}
+{"conversation_id":"demo-002","index":3,"role":"system","content":"Recorded completion.","at":"2026-01-01T09:00:03Z"}

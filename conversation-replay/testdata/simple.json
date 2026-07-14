@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "conversation_id": "demo-001",
+  "started_at": "2026-01-01T09:00:00Z",
+  "meta": {"agent": "researcher", "model": "recorded-model"},
+  "turns": [
+    {"index": 0, "role": "user", "content": "Find the capital of France.", "at": "2026-01-01T09:00:00Z"},
+    {"index": 1, "role": "assistant", "content": "I will look that up.", "tool_calls": [{"name": "search", "args": {"q": "capital France"}, "result": "Paris"}], "tokens": {"in": 12, "out": 8}, "at": "2026-01-01T09:00:01Z"},
+    {"index": 2, "role": "assistant", "content": "The capital of France is Paris.", "state": {"stage": "looked-up", "answer": "Paris"}, "tokens": {"in": 20, "out": 9}, "at": "2026-01-01T09:00:02Z"}
+  ]
+}
